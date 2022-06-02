@@ -2,7 +2,7 @@ export enum ReportType {
   INCOME = 'income',
   EXPENSE = 'expense',
 }
-export const data = {
+export const data: Data = {
   report: [
     {
       id: 'uuid1',
@@ -21,7 +21,7 @@ export const data = {
       type: ReportType.INCOME,
     },
     {
-      id: 'uuid3 ',
+      id: 'uuid3',
       source: 'Food',
       amount: 500,
       created_at: new Date(),
