@@ -7,21 +7,35 @@ import {
   Param,
   Body,
   HttpCode,
+  ParseUUIDPipe,
+  ParseEnumPipe,
 } from '@nestjs/common';
 import { data, ReportType } from './data';
 import { v4 as uuid } from 'uuid';
 import { AppService } from './app.service';
+import {
+  CreateReportDto,
+  ReportResponseDto,
+  UpdateReportDto,
+} from './dtos/report.dto';
+
 @Controller('report/:type')
 export class AppController {
   constructor(private readonly appService: AppService) {}
   @Get()
-  getAllReports(@Param('type') type: string) {
+  getAllReports(
+    @Param('type', new ParseEnumPipe(ReportType)) type: string,
+  ): ReportResponseDto[] {
     const reportType =
       type === 'income' ? ReportType.INCOME : ReportType.EXPENSE;
     return this.appService.getAllReports(reportType);
   }
   @Get(':id')
-  getReportById(@Param('type') type: string, @Param('id') id: string) {
+  getReportById(
+    @Param('type', new ParseEnumPipe(ReportType)) type: string,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): ReportResponseDto {
+    console.log(id, typeof id);
     const reportType =
       type === 'income' ? ReportType.INCOME : ReportType.EXPENSE;
     return this.appService.getReportById(reportType, id);
@@ -33,11 +47,8 @@ export class AppController {
       // we could also have it as body : { amount: number; source: string }
       amount,
       source,
-    }: {
-      amount: number;
-      source: string;
-    },
-    @Param('type') type: string,
+    }: CreateReportDto,
+    @Param('type', new ParseEnumPipe(ReportType)) type: string,
   ) {
     const reportType =
       type === 'income' ? ReportType.INCOME : ReportType.EXPENSE;
@@ -45,21 +56,18 @@ export class AppController {
   }
   @Put(':id')
   upDateReport(
-    @Param('type') type: string,
-    @Param('id') id: string,
+    @Param('type', new ParseEnumPipe(ReportType)) type: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body()
-    body: {
-      amount: number;
-      source: string;
-    },
-  ) {
+    body: UpdateReportDto,
+  ): ReportResponseDto {
     const reportType =
       type === 'income' ? ReportType.INCOME : ReportType.EXPENSE;
     return this.appService.upDateReport(reportType, id, body);
   }
   @HttpCode(204)
   @Delete(':id')
-  deleteReport(@Param('id') id: string) {
+  deleteReport(@Param('id', ParseUUIDPipe) id: string) {
     return this.appService.delete(id);
   }
 }

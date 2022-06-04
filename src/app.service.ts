@@ -1,23 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { data, ReportType } from './data';
 import { v4 as uuid } from 'uuid';
+import { ReportResponseDto } from './dtos/report.dto';
 
 interface Report {
   amount: number;
   source: string;
 }
+interface UpdateReport {
+  amount?: number;
+  source?: string;
+}
 @Injectable()
 export class AppService {
-  getAllReports(type: ReportType) {
+  getAllReports(type: ReportType): ReportResponseDto[] {
     // instead of having this logic in the controller, we will call the method in there
-    return data.report.filter((report) => report.type === type);
-  }
-  getReportById(type: ReportType, id: string) {
     return data.report
+      .filter((report) => report.type === type)
+      .map((report) => new ReportResponseDto(report));
+  }
+  getReportById(type: ReportType, id: string): ReportResponseDto {
+    const report = data.report
       .filter((report) => report.type == type)
       .find((report) => report.id === id);
+    if (!report) return;
+    return new ReportResponseDto(report);
   }
-  createReport(type: ReportType, { amount, source }: Report) {
+  createReport(
+    type: ReportType,
+    { amount, source }: Report,
+  ): ReportResponseDto {
     const newReport = {
       id: uuid(),
       amount,
@@ -27,9 +39,13 @@ export class AppService {
       type,
     };
     data.report.push(newReport);
-    return newReport;
+    return new ReportResponseDto(newReport);
   }
-  upDateReport(type: ReportType, id: string, body: Report) {
+  upDateReport(
+    type: ReportType,
+    id: string,
+    body: UpdateReport,
+  ): ReportResponseDto {
     const reportToUpdate = data.report
       .filter((report) => report.type == type)
       .find((report) => report.id === id);
@@ -42,7 +58,7 @@ export class AppService {
       ...body,
       updated_at: new Date(),
     };
-    return data.report[reportIndex];
+    return new ReportResponseDto(data.report[reportIndex]);
   }
   delete(id: string) {
     const reportIndex = data.report.findIndex((report) => report.id == id);

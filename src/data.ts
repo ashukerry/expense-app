@@ -49,3 +49,11 @@ data.report.push({
   updated_at: new Date(),
   type: ReportType.INCOME,
 });
+export class ReportResponse {
+  id: string;
+  source: string;
+  amount: number;
+  created_at: Date;
+  updatad_at: Data;
+  type: ReportType;
+}
